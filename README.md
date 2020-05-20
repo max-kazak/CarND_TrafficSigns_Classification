@@ -1,27 +1,88 @@
-## Project: Build a Traffic Sign Recognition Program
+Project: Build a Traffic Sign Recognition Program
+====================================================
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 Overview
 ---
-In this project, you will use what you've learned about deep neural networks and convolutional neural networks to classify traffic signs. You will train and validate a model so it can classify traffic sign images using the [German Traffic Sign Dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset). After the model is trained, you will then try out your model on images of German traffic signs that you find on the web.
+In this project, I used what I've learned about deep neural networks and convolutional neural networks to classify traffic signs. I trained and validated a model so it can classify traffic sign images using the [German Traffic Sign Dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset). After the model is trained, I then tried out my model on images of German traffic signs that I find on the web.
 
-We have included an Ipython notebook that contains further instructions 
-and starter code. Be sure to download the [Ipython notebook](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb). 
 
-We also want you to create a detailed writeup of the project. Check out the [writeup template](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup. The writeup can be either a markdown file or a pdf document.
-
-To meet specifications, the project will require submitting three files: 
-* the Ipython notebook with the code
-* the code exported as an html file
-* a writeup report either as a markdown or pdf file 
-
-Creating a Great Writeup
+Writeup
 ---
-A great writeup should include the [rubric points](https://review.udacity.com/#!/rubrics/481/view) as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
+### Dataset Exploration
 
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
+Using numpy and matplotlib I've gathered following statistics of the dataset as well as samples of each traffic sign class:  
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
+Number of training examples = 34799  
+Number of testing examples = 12630  
+Image data shape = (32, 32, 3)  
+Number of classes = 43  
+
+![](report/sign_classes.png)
+
+### Design and Test a Model Architecture
+
+#### Preprocessing
+
+Before training neural network I've applied following transformations on the image datasets:  
+
+ - **convert to grayscale**: since traffic signs have distinctive shapes and colors play secondary role in recognition I've converted all images to grayscale to simplify training process;
+ - **normalization**: by normalizing images we make job easier to optimizer, which lead to faster convergence.
+ 
+#### Model Architecture
+
+For my neural network I've used modified LeNet architecture, which is comprised of following layers:  
+
+ - **Input**:
+    - Input = 32x32x1
+ - **Layer1**:
+    - Output = 28x28x6
+    - Type: Convolution(kernel=5x5x1, fetures=6, stride=1, padding=VALID)
+    - Activation: ReLU
+ - **Layer2**:
+    - Output = 14x14x6
+    - Type: Pooling(kernel=1x2x2x1, stride=1x2x2x1, operation=max, padding=VALID)
+ - **Layer3**:
+    - Output: 10x10x16
+    - Type: Convolution(kernel=5x5x6, fetures=16, stride=1, padding=VALID)
+    - Activation: ReLU
+ - **Layer4**:
+    - Output = 5x5x16, converted to 400
+    - Type: Pooling(kernel=1x2x2x1, stride=1x2x2x1, operation=max, padding=VALID)
+ - **Layer5**:
+    - Output = 120
+    - Type: Dense
+    - Activation: ReLU
+    - Regularezation: dropout(p=0.5)
+ - **Layer6**:
+    - Output = 84
+    - Type: Dense
+    - Activation: ReLU
+    - Regularezation: dropout(p=0.5)
+ - **Layer7**:
+    - Output = 43
+    - Type: Dense
+    - Activation: softmax
+ 
+#### Model Training
+
+To train the model I used AdamOptimizer to find network weights and biases. 
+I chose batch size of 128 as it provided relatively fast training and fit in memory without any problems.  
+And finally I ran 20 epochs of training before accuracy stopped increasing.  
+Other hyperparameters that I chose inlcude: 
+ - learning rate = 0.001 
+ - dropout rate during training = 0.5 
+ - weights initionalized from normal distribution (m=0, s=0.1)
+
+#### Solution Approach 
+
+After adapting LeNet to dataset I've decided to add dropout to dense layers of the network and doubles number of epochs to 20. This small modifications allowed me to achieve 96.1% accuracy on validation set. 
+
+### Test a Model on New Images 
+
+To test model on the samples outside of the dataset I've downloaded 5 images of German traffic signs off the internet and transformed them the same way as the dataset (resize  to 32x32, convert to grayscale, normalize). 
+After running neural network on these new images I got correct prediction for all 5 images with confidence level of 99.9% on average. 
+
 
 The Project
 ---
@@ -49,10 +110,3 @@ git clone https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project
 cd CarND-Traffic-Sign-Classifier-Project
 jupyter notebook Traffic_Sign_Classifier.ipynb
 ```
-
-### Requirements for Submission
-Follow the instructions in the `Traffic_Sign_Classifier.ipynb` notebook and write the project report using the writeup template as a guide, `writeup_template.md`. Submit the project code and writeup document.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
